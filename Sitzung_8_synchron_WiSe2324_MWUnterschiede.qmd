@@ -6,7 +6,7 @@ format:
   revealjs:
     auto-stretch: false
     controls: true
-    slide-number: false
+    slide-number: true
     logo: img/PHlogo.svg
     theme: [dark, css/custom.scss]
     fullscreen: true
