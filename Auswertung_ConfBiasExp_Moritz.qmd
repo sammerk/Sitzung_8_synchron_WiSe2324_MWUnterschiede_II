@@ -1,0 +1,107 @@
+---
+title: "Auswertung Experiment Messtheorie: Anti-Konstrasteffekt Intervention"
+format: 
+  html:
+    self-contained: true
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Download der Daten
+
+```{r}
+#| message: false
+library(tidyverse)
+source("https://soscisurvey.ph-karlsruhe.de/forschungsergebnisse/?act=q2BP61GjDxXUMAqLlSN1H0Sy&rScript")  
+
+ds <- ds |> 
+  filter(lubridate::ymd_hms(STARTED) > lubridate::ymd_hms("2023-07-12 16:00:00")) |> 
+  mutate(Gruppe = ifelse(DU06 == 1, "Ü_konsistent", "Ü_widrig"),
+         DU16_n = as.numeric(DU16),
+         DU09_n = as.numeric(DU09),
+         DU03_n = as.numeric(DU03)) |> 
+  filter(!is.na(Gruppe))
+```
+
+## Wie viele haben mitgemacht?
+
+```{r}
+nrow(ds)
+```
+
+## Design der Studie:
+
+| Gruppe 1                                                                  | Gruppe 2                                                                  |
+|---------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| Abfrage von zukünftigem Handeln, Überzeugung & Sicherheit der Überzeugung | Abfrage von zukünftigem Handeln, Überzeugung & Sicherheit der Überzeugung |
+| Überzeugungs**konformes** Studienergebnis                                 | Überzeungs**widriges** Studienergebnis                                    |
+| Abfrage von zukünftigem Handeln, Überzeugung & Sicherheit der Überzeugung | Abfrage von zukünftigem Handeln, Überzeugung & Sicherheit der Überzeugung |
+| Soziodemographie                                                          | Soziodemographie                                                          |
+
+### Studienergebnis A
+
+> Schweitzer & May (2019) sind in einem bildungswissenschaftlichen Experiment mit Lehrkräften der Frage nachgegangen, ob das generische Maskulinum, also die Verwendung der männlichen Form eines Begriffs (z. B. Schüler), eher zu einer Nennung von männlichen Vornamen führt als die Verwendung der weiblichen und männlichen Form eines Begriffs (z. B. Schülerinnen und Schüler). Um diese Frage zu beantworten, wurden zufällig zwei Gruppen mit jeweils 179 Lehrkräften gebildet. Die eine Gruppe wurde gebeten, „die Vornamen ihrer vier leistungsstärksten Schüler im Mathematikunterricht" und die andere Gruppe „die Vornamen ihrer vier leistungsstärksten Schülerinnen und Schüler im Mathematikunterricht" zu benennen.
+
+**Das Ergebnis:** **Diejenigen Lehrkräfte, die nach den Vornamen ihrer leistungsstärksten ‚Schüler' im Mathematikunterricht gefragt wurden, [nannten im Durchschnitt mehr männliche als weibliche Vornamen]{style="color:#8cd000"} als diejenigen, die nach ihren leistungsstärksten ‚Schülerinnen und Schülern' gefragt wurden.**
+
+### Studienergebnis B
+
+> Schweitzer & May (2019) sind in einem bildungswissenschaftlichen Experiment mit Lehrkräften der Frage nachgegangen, ob das generische Maskulinum, also die Verwendung der männlichen Form eines Begriffs (z. B. Schüler), eher zu einer Nennung von männlichen Vornamen führt als die Verwendung der weiblichen und männlichen Form eines Begriffs (z. B. Schülerinnen und Schüler). Um diese Frage zu beantworten, wurden zufällig zwei Gruppen mit jeweils 179 Lehrkräften gebildet. Die eine Gruppe wurde gebeten, „die Vornamen ihrer vier leistungsstärksten Schüler im Mathematikunterricht" und die andere Gruppe „die Vornamen ihrer vier leistungsstärksten Schülerinnen und Schüler im Mathematikunterricht" zu benennen.
+
+**Das Ergebnis:** **Diejenigen Lehrkräfte, die nach den Vornamen ihrer leistungsstärksten ‚Schüler' im Mathematikunterricht gefragt wurden, [nannten im Durchschnitt gleich viele männliche und weibliche Vornamen]{style="color:#8cd000"} wie diejenigen, die nach ihren leistungsstärksten ‚Schülerinnen und Schülern' gefragt wurden.**
+
+## Ergebnisse
+
+### Handlungsintention vor Intervention (Lesen der Studie)
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(hrbrthemes)
+library(ggforce)
+
+ds |> 
+  ggplot(aes(Gruppe, DU09_n)) +
+  geom_violin() +
+  geom_sina() +
+  ggtitle("Handlungsintention", "über die rein männliche Form hinausgehen") +
+  theme_ipsum()
+  
+```
+
+### Überzeugung vor Intervention (Lesen der Studie)
+
+```{r}
+ds |> 
+  ggplot(aes(Gruppe, DU03)) +
+ # geom_violin() +
+  geom_sina() +
+  ggtitle("Überzeugung", " ... rein männlichen Form...") +
+  theme_ipsum()
+```
+
+### Studieneinschätzung je Konsistenz (Lesen der Studie) - Graphisch
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(hrbrthemes)
+library(ggforce)
+
+ds |> 
+  ggplot(aes(Gruppe, DU16_n)) +
+  geom_violin() +
+  geom_sina() +
+  ggtitle("Wie sehr ...", " ... überzeugt Sie das Studienergebnis") +
+  theme_ipsum()
+```
+
+### Studieneinschätzung je Konsistenz (Lesen der Studie) - Cliff's d
+
+```{r}
+library(effectsize)
+cliffs_delta(DU16_n ~ Gruppe, data = ds)
+```

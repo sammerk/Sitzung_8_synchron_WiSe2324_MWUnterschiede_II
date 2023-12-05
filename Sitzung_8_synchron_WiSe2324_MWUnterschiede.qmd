@@ -1,0 +1,774 @@
+---
+title: "Vorlesung"
+subtitle: "Einführung in qualitative und quantitative Forschungsmethoden"
+author: "Samuel Merk"
+format: 
+  revealjs:
+    auto-stretch: false
+    controls: true
+    slide-number: false
+    logo: img/PHlogo.svg
+    theme: [dark, css/custom.scss]
+    fullscreen: true
+    pdfexport: true
+bibliography: references.bib
+csl: apa.csl
+---
+## Heutige Sitzung {.center}
+<br>
+[{{< fa chalkboard-user >}}]{.imp} Wdh. der Effektstärken
+
+<br>
+[{{< fa dumbbell >}}]{.imp} Klausurähnliche Übungsaufgaben
+
+<br>
+[{{< fa arrows-turn-to-dots >}}]{.imp} Elaboration mit Ergebnissen Masterarbeit
+
+<br>
+[{{< fa arrows-turn-to-dots >}}]{.imp} Elaboration anhand Studie I
+
+<br>
+[{{< fa arrows-turn-to-dots >}}]{.imp} Elaboration anhand Studie II
+
+```{r hidden chunk which creates template stuff}
+#| echo: false
+
+## in terminal ########
+# quarto install extension quarto-ext/fontawesome
+# quarto install extension schochastics/academicons
+#
+
+########################
+library(fontawesome)
+library(tidyverse)
+
+# Change css to lecker PH green
+if(!dir.exists("img"))
+dir.create("img")
+if(!dir.exists("css"))
+dir.create("css")
+fileConn<-file("css/custom.scss")
+writeLines(c("/*-- scss:defaults --*/",
+             "$link-color: #8cd000 !default;"), fileConn)
+close(fileConn)
+
+# create sash with URL
+sash <- 
+  ggplot() + 
+  geom_polygon(data = tibble(x = c(0,4,5.5,0),
+                             y = c(1,5,5,-.5)),
+               aes(x,y), fill = "#8cd000") + 
+  coord_fixed() +
+  annotate(geom = "text", 
+           label = " ", 
+           x = .8, y = .8, 
+           angle = 45,
+           hjust = 0, vjust = 0,
+           size = 10,
+           color = "white") +
+ theme_void() + 
+ theme(plot.margin = margin(-2,0,0,-12, unit = "cm"))
+ggsave("img/sash.svg", sash)
+```
+
+```{css}
+.callout-title {background-color: #8cd000 !important;}
+
+.imp {
+  color: #8cd000;
+}
+
+.em08{
+  font-size: .8em;
+}
+.em07{
+  font-size: .7em;
+}
+
+.em15{
+  font-size: 1.5em;
+}
+
+
+figure>figcaption {
+    margin-top: 0.5em;
+    text-align: center;
+}
+
+.citation {
+  font-size: .8em;
+  color: #8cd000;
+}
+
+
+.timevis.html-widget .vis-background .vis-minor.vis-odd {
+  background: #8CD00030;
+  }
+  
+.vis-text {
+  color: #ffffff !important;
+  }
+  
+.vis-timeline {
+  border: transparent;
+  }
+  
+.vis-item {
+  border-color: #8CD000; 
+  background-color: #8CD000; 
+  color: #ffffff !important;
+}
+
+
+
+.vis-current-time {
+  background-color: #8CD00000;
+}
+  
+```
+
+
+
+## {{< fa chalkboard-user >}} Wdh. der Effektstärken {.center .smaller}
+
+## Cohen's U₁ (% of Non-Overlap){.center .smaller}
+
+```{r}
+#| fig-width: 13
+#| fig-height: 3.5
+#| fig-format: svg
+
+
+library(tidyverse)
+library(patchwork)
+library(hrbrthemes)
+plot1 <-
+  ggplot(data.frame(x = c(-3, 3.8)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .8),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    args = list(mean = .8),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.8)) +
+  ggtitle("Großer Effekt", bquote("Cohen's" ~U[1]~ "= % of Non-Overlap = .47")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+plot2 <-
+  ggplot(data.frame(x = c(-3, 3.5)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .5),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    args = list(mean = .5),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.5)) +
+  ggtitle("Moderater Effekt", bquote("Cohen's" ~U[1]~ "= % of Non-Overlap = .33")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot3 <-
+  ggplot(data.frame(x = c(-3, 3.2)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .2),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    args = list(mean = .2),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.2)) +
+  ggtitle("Kleiner Effekt", bquote("Cohen's" ~U[1]~ "= % of Non-Overlap = .15")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot1 + plot2 + plot3 +
+  plot_layout() &
+   theme(plot.background = element_rect(fill = "#1e1e1e",
+                                        color = "#1e1e1e")) # 1e1e1e from hrbr
+```
+
+::: {.incremental}
+* $U_1 =$ Nicht-Überlappung der Häufigkeitsverteilungen
+* Voraussetzung: Zwei normalverteile (daher auch intervallskalierte) Variablen
+* $U_1$ nimmt Werte zwischen 0 (Nulleffekt) und 1 (maximaler Effekt) an
+* Cohen's [-@cohen1988] Benchmarks für kleine, mittlere und große Effekte liegen bei $U_1=.15$, $U_1=.33$ und $U_1=.47$
+:::
+
+
+
+## Cohen's U₃ (% Over Other Mean){.center .smaller} 
+
+```{r}
+#| fig-width: 13
+#| fig-height: 3.5
+#| fig-format: svg
+#| cache: true
+
+library(tidyverse)
+library(patchwork)
+library(hrbrthemes)
+plot1 <-
+  ggplot(data.frame(x = c(-3, 3.8)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .8),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    args = list(mean = .8),
+    xlim = c(0, 3.8),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.7)) +
+  ggtitle("Großer Effekt", bquote("Cohen's" ~U[3]~ "= % Over Other Mean = .79")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+plot2 <-
+  ggplot(data.frame(x = c(-3, 3.5)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .5),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    args = list(mean = .5),
+    xlim = c(0, 3.5),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.5)) +
+  ggtitle("Moderater Effekt", bquote("Cohen's" ~U[3]~ "= % Over Other Mean = .69")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot3 <-
+  ggplot(data.frame(x = c(-3, 3.2)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .2),
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "area", 
+    fun = dnorm,
+    xlim = c(0, 3.2),
+    args = list(mean = .2),
+    fill = "#8cd00050",
+    color="#ffffff00"
+  ) +
+  xlim(c(-3, 3.2)) +
+  ggtitle("Kleiner Effekt", bquote("Cohen's" ~U[3]~ "= % Over Other Mean = .54")) +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot1 + plot2 + plot3 +
+  plot_layout() &
+   theme(plot.background = element_rect(fill = "#1e1e1e",
+                                        color = "#1e1e1e")) # 1e1e1e from hrbr
+```
+
+::: {.incremental}
+* $U_3 =$ % über dem Mittelwert der anderen Gruppe
+* Voraussetzung: Zwei normalverteile (daher auch intervallskalierte) Variablen
+* $U_3$ nimmt Werte zwischen 0 (maximale Unterlegenheit) und 1 (maximale Überlegenheit) an; ein Nulleffekt liegt bei $U_3 = 0.5$ vor
+* Cohen's Benchmarks für kleine, mittlere und große Effekte liegen bei $U_3=.58$, $U_3=.69$ und $U_3=.79$
+:::
+
+
+## [Cohen's $d$ (Standardized Mean Difference)]{style="font-size:.8em;"}{.center .smaller}
+
+```{r}
+#| cache: true
+#| fig-width: 13
+#| fig-height: 3.5
+#| fig-format: svg
+
+library(tidyverse)
+library(patchwork)
+library(hrbrthemes)
+plot1 <-
+  ggplot(data.frame(x = c(-3, 3.8)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .8),
+    color = "#8cd000"
+  ) +
+  # mean gr 1
+  geom_segment(aes(
+    x = 0,
+    y = 0,
+    xend = 0,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean gr 2
+  geom_segment(aes(
+    x = 0.8,
+    y = 0,
+    xend = 0.8,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean diff
+  geom_segment(aes(
+    y = .05,
+    x = 0,
+    yend = .05,
+    xend = .8),
+    color = "#8cd000",
+    linetype = "dotted"
+  ) +
+  # sd
+  geom_segment(aes(
+    y = dnorm(1),
+    x = .8,
+    yend = dnorm(1),
+    xend = 1.8),
+    color = "#8cd000",
+    linetype = "dashed"
+  ) +
+  xlim(c(-3, 3.7)) +
+  ggtitle("Großer Effekt", "Cohen's d = Standardized Mean Difference = .8") +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+plot2 <-
+  ggplot(data.frame(x = c(-3, 3.5)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .5),
+    color = "#8cd000"
+  ) +
+   # mean gr 1
+  geom_segment(aes(
+    x = 0,
+    y = 0,
+    xend = 0,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean gr 2
+  geom_segment(aes(
+    x = 0.5,
+    y = 0,
+    xend = 0.5,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean diff
+  geom_segment(aes(
+    y = .05,
+    x = 0,
+    yend = .05,
+    xend = .5),
+    color = "#8cd000",
+    linetype = "dotted"
+  ) +
+  # sd
+  geom_segment(aes(
+    y = dnorm(1),
+    x = .5,
+    yend = dnorm(1),
+    xend = 1.5),
+    color = "#8cd000",
+    linetype = "dashed"
+  ) +
+  xlim(c(-3, 3.5)) +
+  ggtitle("Moderater Effekt", "Cohen's d = Standardized Mean Difference = .5") +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot3 <-
+  ggplot(data.frame(x = c(-3, 3.2)), aes(x)) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    color = "#8cd000"
+  ) +
+  stat_function(
+    geom = "line", 
+    fun = dnorm,
+    args = list(mean = .2),
+    color = "#8cd000"
+  ) +
+   # mean gr 1
+  geom_segment(aes(
+    x = 0,
+    y = 0,
+    xend = 0,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean gr 2
+  geom_segment(aes(
+    x = 0.2,
+    y = 0,
+    xend = 0.2,
+    yend = dnorm(0)),
+    color = "#8cd00030"
+  ) +
+  # mean diff
+  geom_segment(aes(
+    y = .05,
+    x = 0,
+    yend = .05,
+    xend = .2),
+    color = "#8cd000",
+    linetype = "dotted"
+  ) +
+  # sd
+  geom_segment(aes(
+    y = dnorm(1),
+    x = .2,
+    yend = dnorm(1),
+    xend = 1.2),
+    color = "#8cd000",
+    linetype = "dashed"
+  ) +
+  xlim(c(-3, 3.2)) +
+  ggtitle("Kleiner Effekt", "Cohen's d = Standardized Mean Difference = .2") +
+  theme_modern_rc() +
+  theme(axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_blank())
+
+
+plot1 + plot2 + plot3 +
+  plot_layout() &
+   theme(plot.background = element_rect(fill = "#1e1e1e",
+                                        color = "#1e1e1e")) # 1e1e1e from hrbr
+```
+
+::: {.incremental}
+* $d(XY) = \frac{\bar{x}-\bar{y}}{\sqrt{\frac{s_x^2 + s_y^2}{2}}}$ [(Interaktive Visualisierung {{< fa square-up-right >}})](https://www.geogebra.org/m/tGcX62gq){preview-link="true"}
+* Cohen's $d$ kann Werte zwischen $-\infty$ und $+\infty$ annehmen. Je weiter $d$ von 0 entfernt ist, desto stärker ist der Effekt; $d = 0$ entspricht dem Nulleffekt 
+* Cohen's Benchmarks für kleine, mittlere und große Effekte liegen bei $d=.2$, $d=.5$ und $d=.8$
+:::
+
+## Cliff's d {.smaller .center}
+```{r}
+#| label: vis_cliff_function
+#| fig-width: 13
+#| fig-height: 4.5
+#| fig-format: svg
+
+library(bayestestR)
+library(patchwork)
+vis_cliff <- function(plot_raw, rnd, alpha, color) {
+data_rawplot <- 
+  layer_data(plot_raw)
+
+data_expanded <- 
+  expand_grid(ylinks = data_rawplot |> filter(round(x, 0) == 1) |> pull(y),
+              yrechts = data_rawplot |> filter(round(x, 0) == 2) |> pull(y)) |> 
+  gather(ort_y, y) |> 
+  left_join(data_rawplot |> dplyr::select(y, x))
+
+data_to_add <- 
+  tibble(ylinks = data_expanded |> filter(ort_y == "ylinks") |> pull(y),
+         xlinks = data_expanded |> filter(ort_y == "ylinks") |> pull(x),
+         yrechts = data_expanded |> filter(ort_y == "yrechts") |> pull(y),
+         xrechts = data_expanded |> filter(ort_y == "yrechts") |> pull(x)) |> 
+  mutate(Vergleich = ifelse(round(ylinks, rnd) < round(yrechts, rnd), "aufwärts", 
+                            ifelse(round(ylinks, rnd) > round(yrechts, rnd), "abwärts", "gleich"))) |> 
+  # order rows randomly
+  sample_frac(1)
+ggplot() +
+  geom_segment(
+    data = data_to_add,
+    aes(
+      x = xlinks,
+      y = ylinks,
+      xend = xrechts,
+      yend = yrechts,
+      color = Vergleich
+    ),
+    alpha = alpha
+  ) +
+  geom_point(data = data_rawplot, aes(x,y),
+             color = color) +
+  theme_modern_rc() +
+  scale_color_manual(values = c("#8cd000", "#d77d00", "#ffffff"),
+                     guide = guide_legend(override.aes = list(size = 3,
+                                                                    alpha = 1))
+                     )
+
+}
+
+
+set.seed(2505)
+data1 <- 
+  tibble(Control = c(1:5, 
+                     round(distribution_beta(22, 3.21, 2)/2, digits = 1)*10),
+         Placebo = c(1:5, 
+                     round(distribution_beta(22, 2, 3.21)/2, digits = 1)*10)) |> 
+           gather(Bedingung, Nervosität)
+
+plot1 <- 
+  ggplot(data1,
+         aes(Bedingung, Nervosität)) +
+  geom_jitter(color = "#8cd000",
+              width = .08,
+              height = .2)
+plot1 <- 
+  vis_cliff(plot1, 0, .1, "#ffffff")   +
+  ggtitle("Großer Effekt", 
+          "Cliff's d = Rangbiseriale Korrelation = .43") +
+    ylab("Nervosität") +
+    xlab("Bedingung") +
+    scale_x_continuous(breaks = c(1,2),
+                       label = c("Control","Placebo"),
+                       limits = c(.75, 2.25)) +
+    ylim(c(.5,5.5)) +
+    theme(panel.grid.minor = element_blank(),
+          plot.margin = margin(.2, .2, .2, .2, "cm"))
+  
+
+
+data2 <- 
+  tibble(Control = c(1:5, 
+                     round(distribution_beta(22, 2.6, 2)/2, digits = 1)*10),
+         Placebo = c(1:5, 
+                     round(distribution_beta(22, 2, 2.6)/2, digits = 1)*10)) |> 
+           gather(Bedingung, Nervosität)
+
+plot2 <- 
+  ggplot(data2,
+         aes(Bedingung, Nervosität)) +
+  geom_jitter(color = "#8cd000",
+              width = .08,
+              height = .2)
+plot2 <- 
+  vis_cliff(plot2, 0, .1, "#ffffff")   +
+  ggtitle("Moderater Effekt", 
+          "Cliff's d = Rangbiseriale Korrelation = .28") +
+    ylab("Nervosität") +
+    xlab("Bedingung") +
+    scale_x_continuous(breaks = c(1,2),
+                       label = c("Control","Placebo"),
+                       limits = c(.75, 2.25)) +
+    ylim(c(.5,5.5)) +
+    theme(panel.grid.minor = element_blank(),
+          plot.margin = margin(.2, .2, .2, .2, "cm"))
+
+
+data3 <- 
+  tibble(Control = c(1:5, 
+                     round(distribution_beta(22, 2.3, 2)/2, digits = 1)*10),
+         Placebo = c(1:5, 
+                     round(distribution_beta(22, 2, 2.3)/2, digits = 1)*10)) |> 
+           gather(Bedingung, Nervosität)
+
+plot3 <- 
+  ggplot(data3,
+         aes(Bedingung, Nervosität)) +
+  geom_jitter(color = "#8cd000",
+              width = .08,
+              height = .2)
+plot3 <- 
+  vis_cliff(plot3, 0, .1, "#ffffff")   +
+  ggtitle("Kleiner Effekt", 
+          "Cliff's d = Rangbiseriale Korrelation = .11") +
+    ylab("Nervosität") +
+    xlab("Bedingung") +
+    scale_x_continuous(breaks = c(1,2),
+                       label = c("Control","Placebo"),
+                       limits = c(.75, 2.25)) +
+    ylim(c(.5,5.5)) +
+    theme(panel.grid.minor = element_blank(),
+          plot.margin = margin(.2, .2, .2, .2, "cm"))
+
+
+plot1 + plot2 + plot3 +
+  plot_layout() &
+  theme(plot.background =
+          element_rect(fill = "#1e1e1e",
+                       color = "#1e1e1e")) # 1e1e1e from hrbr
+  
+```
+
+::: {.incremental}
+* Voraussetzung: Zwei mindestens ordinalverteile Variablen
+* Cliff's $d(X, Y)$ nimmt Werte zwischen -1 (maximale Unterlegenheit von X) und 1 (maximale Überlegenheit von X) an; ein Nulleffekt liegt bei $d = 0$ vor
+* Cohen's Benchmarks für kleine, mittlere und große Effekte liegen bei $d=.11$, $d=.28$ und $d=.43$
+:::
+
+## Vertiefung Normalverteilung {.smaller .center}
+::: {.incremental}
+* Viele Größen kommen in der Natur normalverteilt vor [@mcelreath2020]
+* »Normalverteilt« bedeutet, die Wahrscheinlichkeitsdichte folgt der Funktion $f(x)=\frac{1}{\sigma \sqrt{2 \pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$
+* [Dieser interaktiven Darstellung {{< fa square-up-right >}}](https://www.geogebra.org/m/uRcrDyKj){preview-link="true"} kann entnommen werden, dass $\mu$ dem arithmetischen Mittel/Median/Modus entspricht und $\sigma$ der Standardabweichung
+* Das [»Galtonboard« {{< fa square-up-right >}}](https://www.youtube.com/embed/TwctT3Ncm1w){preview-link="true"} kann als konzeptuelle Erklärung dafür dienen, warum die "Addition vieler unabhägiger Zufälle" zu einer Vornalverteilung führt (zentraler Grenzwertsatz) 
+:::
+
+. . .
+
+> [{{< fa comments >}}]{.imp} Warum sind Schulnoten oft nicht normalverteilt, wissenschaftlich entwickelte Leistungs- und Fähigkeitstests aber schon?
+
+
+
+## Elaboration mit Knobelaufgaben {{< fa arrows-turn-to-dots >}} {.smaller .center}
+
+::: {.fragment}
+#### Knobelaufgabe 1:
+Zeichnen Sie jeweils zwei Boxplots für die sich ein Cliff's d von a) 0, b) 1, c) -1 ergibt.
+
+#### Knobelaufgabe 2:
+Zeichnen Sie jeweils zwei Boxplots für die sich ein Cliff's d von 0 ergibt, deren Streuung aber unterschiedlich ist.
+
+#### Knobelaufgabe 3:
+Schreiben Sie zwei Datenreihen mit jeweils 5 Datenpunkten auf, für die gilt: Cohen's $U_1$ ≠ 0 und Cliff's d = 0.
+:::
+
+## Vertiefung anhand Studie I {.smaller}
+(@)  Rufen Sie über die Hochschulbibliotheksseite die Fachdatenbank **PsychInfo** auf und suchen Sie dort nach dem Artikel: 
+
+> Roloff Henoch, J., Klusmann, U., Lüdtke, O., & Trautwein, U. (2015). Who becomes a teacher? Challenging the „negative selection“ hypothesis. *Learning and Instruction, 36*, 46–56. https://doi.org/10.1016/j.learninstruc.2014.11.005
+
+(@)  Laden Sie sich das pdf des Artikels herunter und klassifizieren Sie die Studie als 
+    * Primär-, Sekundär- oder Metastudie
+    * Explorativ, explanativ oder deskriptiv
+    * Experimentell, quasiexperimentell oder nicht-experimentell
+5) Bewerten Sie die interne und externe sowie die Konstruktvalidität der Studie
+(@) Was stellt für Sie die Kernaussage der Studie dar?
+
+
+## Vertiefung anhand Studie II {.smaller}
+1) Laden Sie den folgenden Open Access Artikel herunter:
+
+> Förster, N., Forthmann, B., Back, M. D., & Souvignier, E. (2023). Effects of the COVID-19 pandemic on reading performance of second grade children in Germany. *Reading and Writing, 36*(2), 289–315. https://doi.org/10.1007/s11145-022-10379-y
+
+(@)  Verschaffen Sie sich einen Überblick über die Studie und klassifizieren Sie diese als 
+    * Primär-, Sekundär- oder Metastudie
+    * Explorativ, explanativ oder deskriptiv
+    * Experimentell, quasiexperimentell oder nicht-experimentell
+5) Bewerten Sie die interne und externe sowie die Konstruktvalidität der Studie
+6) Wie unterscheiden sich die Ergebnisse von Ihrem intuitiven Vorwissen?
+
+
+
+
+## Literatur
+<style>
+div.callout {border-left-color: #8cd000 !important;
+</style>
